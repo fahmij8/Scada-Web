@@ -1,0 +1,63 @@
+.custom-switch .custom-control-label::after {
+    background-color: white;
+}
+
+.custom-control-input:not(checked) ~ .custom-control-label::before {
+    background-color: #af4c4c;
+    border-color: #913e3e;
+    outline: 0;
+    -webkit-box-shadow: inset 0px 0px 4px 0px rgb(0 0 0 / 20%), 0 -3px 4px rgb(0 0 0 / 15%);
+    box-shadow: inset 0px 0px 4px 0px rgb(0 0 0 / 20%), 0 -3px 4px rgb(0 0 0 / 15%);
+}
+
+.custom-control-input:checked ~ .custom-control-label::before {
+    background-color: #4caf50;
+    border: 2px solid #88cf8f;
+    outline: 0;
+    -webkit-box-shadow: inset 0px 0px 4px 0px rgb(0 0 0 / 20%), 0 -3px 4px rgb(0 0 0 / 15%);
+    box-shadow: inset 0px 0px 4px 0px rgb(0 0 0 / 20%), 0 -3px 4px rgb(0 0 0 / 15%);
+}
+
+.custom-switch.custom-switch-lg {
+    padding-bottom: 1rem;
+    padding-left: 2.25rem;
+}
+.custom-switch.custom-switch-lg .custom-control-label {
+    padding-left: 0.75rem;
+    padding-top: 0.15rem;
+}
+.custom-switch.custom-switch-lg .custom-control-label::before {
+    border-radius: 1rem;
+    height: 1.5rem;
+    width: 2.5rem;
+}
+.custom-switch.custom-switch-lg .custom-control-label::after {
+    border-radius: 0.65rem;
+    height: calc(1.5rem - 4px);
+    width: calc(1.5rem - 4px);
+}
+.custom-switch.custom-switch-lg .custom-control-input:checked ~ .custom-control-label::after {
+    transform: translateX(1rem);
+}
+
+.custom-switch.custom-switch-xl {
+    padding-bottom: 1rem;
+    padding-left: 2.25rem;
+}
+.custom-switch.custom-switch-xl .custom-control-label {
+    padding-left: 2rem;
+    padding-top: 0.5rem;
+}
+.custom-switch.custom-switch-xl .custom-control-label::before {
+    border-radius: 1rem;
+    height: 2rem;
+    width: 3.5rem;
+}
+.custom-switch.custom-switch-xl .custom-control-label::after {
+    border-radius: 2rem;
+    height: calc(2rem - 4px);
+    width: calc(2rem - 4px);
+}
+.custom-switch.custom-switch-xl .custom-control-input:checked ~ .custom-control-label::after {
+    transform: translateX(1.5rem);
+}

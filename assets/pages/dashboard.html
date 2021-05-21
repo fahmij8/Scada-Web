@@ -1,0 +1,358 @@
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+    <a href="#" class="d-inline-block btn btn-sm btn-primary shadow-sm dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</a>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+        <a class="dropdown-item dash-mqtt-on">Connect to MQTT</a>
+        <a class="dropdown-item dash-mqtt-off d-none">Disconnect from MQTT</a>
+        <a class="dropdown-item dash-set-value d-none">Change set value</a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">MQTT Status</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800 dash-mqtt-stat">Disconnected</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-globe fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">System Status</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800 dash-sys-stat">Undefined</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-cogs fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Last Updated</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800 dash-mqtt-lu">None</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Chiller Temp</div>
+                        <div class="row no-gutters align-items-center">
+                            <div class="col-auto">
+                                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800 dash-chil-temp">None</div>
+                            </div>
+                            <div class="col">
+                                <div class="progress progress-sm mr-2">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-temperature-low fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Actual Temp.</div>
+                        <div class="row no-gutters align-items-center">
+                            <div class="col-auto">
+                                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800 dash-actual-temp">None</div>
+                            </div>
+                            <div class="col">
+                                <div class="progress progress-sm mr-2">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-temperature-low fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Set Actual Temp.</div>
+                        <div class="row no-gutters align-items-center">
+                            <div class="col-auto">
+                                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800 dash-set-temp">None</div>
+                            </div>
+                            <div class="col">
+                                <div class="progress progress-sm mr-2">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-temperature-low fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Control Device</h1>
+</div>
+
+<div class="card shadow mb-4">
+    <a href="#collapseCardButton" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardButton">
+        <h6 class="m-0 font-weight-bold text-primary">Basic Button</h6>
+    </a>
+    <div class="collapse show" id="collapseCardButton" style="">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-xl-4 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="h6 font-weight-bold text-primary mb-3">Start</div>
+                                    <div class="custom-control custom-switch custom-switch-xl">
+                                        <input type="checkbox" class="custom-control-input" id="start-check" />
+                                        <label class="custom-control-label start-status" for="start-check">Undefined</label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-cog fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="h6 font-weight-bold text-primary mb-3">Stop</div>
+                                    <div class="custom-control custom-switch custom-switch-xl">
+                                        <input type="checkbox" class="custom-control-input" id="stop-check" />
+                                        <label class="custom-control-label stop-status" for="stop-check">Undefined</label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-stop-circle fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="h6 font-weight-bold text-primary mb-3">Emergency</div>
+                                    <div class="custom-control custom-switch custom-switch-xl">
+                                        <input type="checkbox" class="custom-control-input" id="emergency-check" />
+                                        <label class="custom-control-label emergency-status" for="emergency-check">Undefined</label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-exclamation-circle fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card shadow mb-4">
+    <a href="#collapseCardOpButton" class="d-block card-header py-3 collapsed" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">
+        <h6 class="m-0 font-weight-bold text-primary">Operation Button</h6>
+    </a>
+    <div class="collapse" id="collapseCardOpButton" style="">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-xl-4 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="h6 font-weight-bold text-primary mb-3">Mode</div>
+                                    <div class="custom-control custom-switch custom-switch-xl">
+                                        <input type="checkbox" class="custom-control-input" id="mode-check" />
+                                        <label class="custom-control-label mode-status" for="mode-check">Undefined</label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="h6 font-weight-bold text-primary mb-3">Pump 1 (Manual Mode)</div>
+                                    <div class="custom-control custom-switch custom-switch-xl">
+                                        <input type="checkbox" class="custom-control-input" id="pump1-check" />
+                                        <label class="custom-control-label pump1-status" for="pump1-check">Undefined</label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-tint fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="h6 font-weight-bold text-primary mb-3">Pump 2 (Manual Mode)</div>
+                                    <div class="custom-control custom-switch custom-switch-xl">
+                                        <input type="checkbox" class="custom-control-input" id="pump2-check" />
+                                        <label class="custom-control-label pump2-status" for="pump2-check">Undefined</label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-tint fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Monitor Device</h1>
+</div>
+<div class="card shadow mb-4">
+    <a href="#collapseCardOutput" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardOutput">
+        <h6 class="m-0 font-weight-bold text-primary">Output</h6>
+    </a>
+    <div class="collapse show" id="collapseCardOutput" style="">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-xl-6 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="h6 font-weight-bold text-primary mb-3">Pump 1</div>
+                                    <div class="custom-control custom-switch custom-switch-xl">
+                                        <input type="checkbox" onclick="return false;" class="custom-control-input" id="outpump1-check" />
+                                        <label class="custom-control-label outpump1-status" for="outpump1-check">Undefined</label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-dewpoint fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-6 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="h6 font-weight-bold text-primary mb-3">Chiller</div>
+                                    <div class="custom-control custom-switch custom-switch-xl">
+                                        <input type="checkbox" onclick="return false;" class="custom-control-input" id="chiller-check" />
+                                        <label class="custom-control-label chiller-status" for="chiller-check">Undefined</label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-temperature-frigid fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xl-6 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="h6 font-weight-bold text-primary mb-3">Pump 2</div>
+                                    <div class="custom-control custom-switch custom-switch-xl">
+                                        <input type="checkbox" onclick="return false;" class="custom-control-input" id="outpump2-check" />
+                                        <label class="custom-control-label outpump2-status" for="outpump2-check">Undefined</label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-dewpoint fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-6 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="h6 font-weight-bold text-primary mb-3">AHU</div>
+                                    <div class="custom-control custom-switch custom-switch-xl">
+                                        <input type="checkbox" onclick="return false;" class="custom-control-input" id="ahu-check" />
+                                        <label class="custom-control-label ahu-status" for="ahu-check">Undefined</label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-air-conditioner fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
