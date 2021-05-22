@@ -270,6 +270,7 @@ let dashboardHandler = () => {
             onFailure: () => {
                 console.log("Connection error!");
             },
+            useSSL: true,
         });
     });
     $(".dash-mqtt-off").click(() => {
