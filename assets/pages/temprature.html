@@ -1,0 +1,68 @@
+<h1 class="h3 mb-2 text-gray-800"><i class="fad fa-fw fa-thermometer-three-quarters mr-2"></i>Temprature</h1>
+<p class="mb-4">Temprature Database from Water Cooled Chiller System. Database is stored on Firebase Realtime Database.</p>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Actual Temprature Graph</h6>
+    </div>
+    <div class="card-body">
+        <div class="chart-area">
+            <canvas id="actTempChart"></canvas>
+        </div>
+    </div>
+</div>
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Chiller Temprature Graph</h6>
+    </div>
+    <div class="card-body">
+        <div class="chart-area">
+            <canvas id="chiTempChart"></canvas>
+        </div>
+    </div>
+</div>
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Set Temprature Graph</h6>
+    </div>
+    <div class="card-body">
+        <div class="chart-area">
+            <canvas id="setTempChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">All Temprature History</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12 mb-3" id="exportTemp"></div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTemp" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th class="text-center align-middle" rowspan="2">Date</th>
+                        <th colspan="3" class="text-center">Temprature</th>
+                    </tr>
+                    <tr>
+                        <th class="text-center align-middle">Actual Temp</th>
+                        <th class="text-center align-middle">Chiller Temp</th>
+                        <th class="text-center align-middle">Set Temp</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th class="text-center align-middle">Date</th>
+                        <th class="text-center align-middle">Actual Temp</th>
+                        <th class="text-center align-middle">Chiller Temp</th>
+                        <th class="text-center align-middle">Set Temp</th>
+                    </tr>
+                </tfoot>
+                <tbody id="fill-temp"></tbody>
+            </table>
+        </div>
+    </div>
+</div>

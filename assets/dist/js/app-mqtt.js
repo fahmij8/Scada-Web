@@ -1,6 +1,33 @@
+import { getUserInfo } from "./app-firebaseauth.js";
+
 let dashboardHandler = () => {
     // MQTT Stuff
     // Docs : https://www.eclipse.org/paho/files/jsdoc/Paho.MQTT.Client.html
+    let isAdmin = false;
+    getUserInfo().then((data) => {
+        if (data.email === "fahmijabbar@upi.edu") {
+            isAdmin = true;
+            if (sessionStorage.getItem("warned") === null) {
+                Swal.fire({
+                    icon: "info",
+                    title: "Welcome!",
+                    text: `Welcome Admin, Wishing you have a great day!`,
+                });
+                sessionStorage.setItem("warned", true);
+            }
+            return false;
+        } else {
+            if (sessionStorage.getItem("warned") === null) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Heads up!",
+                    text: `Since you're logged in not as Administrator. The only access is granted is viewing data.`,
+                });
+                sessionStorage.setItem("warned", true);
+            }
+            return false;
+        }
+    });
     let clientId = "mqttjs_" + Math.random().toString(16).substr(2, 8);
     let client = new Paho.MQTT.Client("broker.mqttdashboard.com", 8000, clientId);
     let datas;
@@ -9,6 +36,14 @@ let dashboardHandler = () => {
     let alertStart = 0;
     $("#nav-dash").addClass("active");
     $(".dash-mqtt-on").click(() => {
+        let onFailure = (error) => {
+            console.log("Connection Failed!");
+            Swal.fire({
+                icon: "error",
+                title: "Connection Failed",
+                text: `Unable to establish connection to MQTT Broker, Reason : ${error} `,
+            });
+        };
         let onConnect = () => {
             console.log("Client Connected!");
             const Toast = Swal.mixin({
@@ -75,9 +110,41 @@ let dashboardHandler = () => {
                             firebase.database().ref(`devices/${new Date().getTime()}`).set(datas);
                         }
                     });
+                let progressBar = (temp) => {
+                    return ((parseInt(temp) - 20) / 20) * 100;
+                };
                 $(".dash-chil-temp").html(`${datas["memoryChillerTemp"][0]}°C`);
+                $(".dash-chil-prog").css("width", `${progressBar(datas["memoryChillerTemp"][0])}`);
                 $(".dash-actual-temp").html(`${datas["memoryActualTemp"][0]}°C`);
+                $(".dash-actual-prog").css("width", `${progressBar(datas["memoryActualTemp"][0])}`);
                 $(".dash-set-temp").html(`${datas["memorySetTemp"][0]}°C`);
+                $(".dash-set-prog").css("width", `${progressBar(datas["memorySetTemp"][0])}`);
+                if (datas["memoryActualTemp"][0] === datas["memorySetTemp"][0]) {
+                    firebase
+                        .database()
+                        .ref(`alerts/${new Date().getTime()}`)
+                        .once("value", (snapshot) => {
+                            if (!snapshot.exists()) {
+                                firebase.database().ref(`alerts/${new Date().getTime()}`).set(["Info : Set Value Reached"]);
+                            }
+                        });
+                    countAlert += 1;
+                    $(".fill-alerts").prepend(`
+                        <a class="dropdown-item d-flex align-items-center">
+                            <div class="mr-3">
+                                <div class="icon-circle bg-warning">
+                                    <i class="far fa-check text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">${new Date().toLocaleString()}</div>
+                                <span class="font-weight-bold">Set Value Reached</span>
+                            </div>
+                        </a>
+                    `);
+                    $(".badge-counter").html(countAlert);
+                    toastPush("info");
+                }
 
                 if (datas["flagSystem"][0] === false) {
                     $(".dash-sys-stat").html("Stopped");
@@ -101,7 +168,7 @@ let dashboardHandler = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <div class="small text-gray-500">${new Date()}</div>
+                                    <div class="small text-gray-500">${new Date().toLocaleString()}</div>
                                     <span class="font-weight-bold">System is stopped</span>
                                 </div>
                             </a>
@@ -131,7 +198,7 @@ let dashboardHandler = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <div class="small text-gray-500">${new Date()}</div>
+                                    <div class="small text-gray-500">${new Date().toLocaleString()}</div>
                                     <span class="font-weight-bold">System is running</span>
                                 </div>
                             </a>
@@ -158,7 +225,7 @@ let dashboardHandler = () => {
                                 </div>
                             </div>
                             <div>
-                                <div class="small text-gray-500">${new Date()}</div>
+                                <div class="small text-gray-500">${new Date().toLocaleString()}</div>
                                 <span class="font-weight-bold">Pump 2 works before pump 1 in manual mode</span>
                             </div>
                         </a>
@@ -184,7 +251,7 @@ let dashboardHandler = () => {
                                 </div>
                             </div>
                             <div>
-                                <div class="small text-gray-500">${new Date()}</div>
+                                <div class="small text-gray-500">${new Date().toLocaleString()}</div>
                                 <span class="font-weight-bold">Actual temprature >= 40°C</span>
                             </div>
                         </a>
@@ -267,10 +334,7 @@ let dashboardHandler = () => {
         };
         client.connect({
             onSuccess: onConnect,
-            onFailure: () => {
-                console.log("Connection error!");
-            },
-            useSSL: true,
+            onFailure: onFailure,
         });
     });
     $(".dash-mqtt-off").click(() => {
@@ -285,241 +349,303 @@ let dashboardHandler = () => {
         $(".dash-mqtt-stat").html("Disconnected");
     });
     $(".dash-set-value").click(async () => {
-        const { value: temprature } = await Swal.fire({
-            title: "Enter your desired temprature",
-            input: "number",
-            inputLabel: "Only between between 20°C-40°C",
-            showCancelButton: true,
-            inputValidator: (value) => {
-                if (!value) {
-                    return "You need to write something!";
-                } else {
-                    if (parseInt(value) < 20 || parseInt(value) > 40) {
-                        return "Incorrect temprature!";
+        if (isAdmin) {
+            const { value: temprature } = await Swal.fire({
+                title: "Enter your desired temprature",
+                input: "number",
+                inputLabel: "Only between between 20°C-40°C",
+                showCancelButton: true,
+                inputValidator: (value) => {
+                    if (!value) {
+                        return "You need to write something!";
+                    } else {
+                        if (parseInt(value) < 20 || parseInt(value) > 40) {
+                            return "Incorrect temprature!";
+                        }
                     }
-                }
-            },
-        });
+                },
+            });
 
-        if (temprature) {
-            client.send(
-                "scada-fahmi-m5Hj/write/device",
-                JSON.stringify({
-                    buttonEmergency: [datas["buttonEmergency"][0]],
-                    buttonMode: [datas["buttonMode"][0]],
-                    buttonPump1: [datas["buttonPump1"][0]],
-                    buttonPump2: [datas["buttonPump2"][0]],
-                    buttonStart: [datas["buttonStart"][0]],
-                    buttonStop: [datas["buttonStop"][0]],
-                    memorySetTemp: [parseInt(temprature)],
-                }),
-                2,
-                false
-            );
+            if (temprature) {
+                client.send(
+                    "scada-fahmi-m5Hj/write/device",
+                    JSON.stringify({
+                        buttonEmergency: [datas["buttonEmergency"][0]],
+                        buttonMode: [datas["buttonMode"][0]],
+                        buttonPump1: [datas["buttonPump1"][0]],
+                        buttonPump2: [datas["buttonPump2"][0]],
+                        buttonStart: [datas["buttonStart"][0]],
+                        buttonStop: [datas["buttonStop"][0]],
+                        memorySetTemp: [parseInt(temprature)],
+                    }),
+                    2,
+                    false
+                );
+            }
+        } else {
+            Swal.fire({
+                icon: "warning",
+                title: "Warning",
+                text: `You don't have access to do this since you're not administrator.`,
+            });
         }
     });
     // Start Button Handler
     $("#start-check").click((state) => {
-        if (state.target.checked === true) {
-            client.send(
-                "scada-fahmi-m5Hj/write/device",
-                JSON.stringify({
-                    buttonEmergency: [datas["buttonEmergency"][0]],
-                    buttonMode: [datas["buttonMode"][0]],
-                    buttonPump1: [datas["buttonPump1"][0]],
-                    buttonPump2: [datas["buttonPump2"][0]],
-                    buttonStart: [true],
-                    buttonStop: [datas["buttonStop"][0]],
-                    memorySetTemp: [datas["memorySetTemp"][0]],
-                }),
-                2,
-                false
-            );
+        if (isAdmin) {
+            if (state.target.checked === true) {
+                client.send(
+                    "scada-fahmi-m5Hj/write/device",
+                    JSON.stringify({
+                        buttonEmergency: [datas["buttonEmergency"][0]],
+                        buttonMode: [datas["buttonMode"][0]],
+                        buttonPump1: [datas["buttonPump1"][0]],
+                        buttonPump2: [datas["buttonPump2"][0]],
+                        buttonStart: [true],
+                        buttonStop: [datas["buttonStop"][0]],
+                        memorySetTemp: [datas["memorySetTemp"][0]],
+                    }),
+                    2,
+                    false
+                );
+            } else {
+                client.send(
+                    "scada-fahmi-m5Hj/write/device",
+                    JSON.stringify({
+                        buttonEmergency: [datas["buttonEmergency"][0]],
+                        buttonMode: [datas["buttonMode"][0]],
+                        buttonPump1: [datas["buttonPump1"][0]],
+                        buttonPump2: [datas["buttonPump2"][0]],
+                        buttonStart: [false],
+                        buttonStop: [datas["buttonStop"][0]],
+                        memorySetTemp: [datas["memorySetTemp"][0]],
+                    }),
+                    2,
+                    false
+                );
+            }
         } else {
-            client.send(
-                "scada-fahmi-m5Hj/write/device",
-                JSON.stringify({
-                    buttonEmergency: [datas["buttonEmergency"][0]],
-                    buttonMode: [datas["buttonMode"][0]],
-                    buttonPump1: [datas["buttonPump1"][0]],
-                    buttonPump2: [datas["buttonPump2"][0]],
-                    buttonStart: [false],
-                    buttonStop: [datas["buttonStop"][0]],
-                    memorySetTemp: [datas["memorySetTemp"][0]],
-                }),
-                2,
-                false
-            );
+            Swal.fire({
+                icon: "warning",
+                title: "Warning",
+                text: `You don't have access to do this since you're not administrator.`,
+            });
+            return false;
         }
     });
     // Stop Button Handler
     $("#stop-check").click((state) => {
-        if (state.target.checked === true) {
-            client.send(
-                "scada-fahmi-m5Hj/write/device",
-                JSON.stringify({
-                    buttonEmergency: [datas["buttonEmergency"][0]],
-                    buttonMode: [datas["buttonMode"][0]],
-                    buttonPump1: [datas["buttonPump1"][0]],
-                    buttonPump2: [datas["buttonPump2"][0]],
-                    buttonStart: [datas["buttonStart"][0]],
-                    buttonStop: [true],
-                    memorySetTemp: [datas["memorySetTemp"][0]],
-                }),
-                2,
-                false
-            );
+        if (isAdmin) {
+            if (state.target.checked === true) {
+                client.send(
+                    "scada-fahmi-m5Hj/write/device",
+                    JSON.stringify({
+                        buttonEmergency: [datas["buttonEmergency"][0]],
+                        buttonMode: [datas["buttonMode"][0]],
+                        buttonPump1: [datas["buttonPump1"][0]],
+                        buttonPump2: [datas["buttonPump2"][0]],
+                        buttonStart: [datas["buttonStart"][0]],
+                        buttonStop: [true],
+                        memorySetTemp: [datas["memorySetTemp"][0]],
+                    }),
+                    2,
+                    false
+                );
+            } else {
+                client.send(
+                    "scada-fahmi-m5Hj/write/device",
+                    JSON.stringify({
+                        buttonEmergency: [datas["buttonEmergency"][0]],
+                        buttonMode: [datas["buttonMode"][0]],
+                        buttonPump1: [datas["buttonPump1"][0]],
+                        buttonPump2: [datas["buttonPump2"][0]],
+                        buttonStart: [datas["buttonStart"][0]],
+                        buttonStop: [false],
+                        memorySetTemp: [datas["memorySetTemp"][0]],
+                    }),
+                    2,
+                    false
+                );
+            }
         } else {
-            client.send(
-                "scada-fahmi-m5Hj/write/device",
-                JSON.stringify({
-                    buttonEmergency: [datas["buttonEmergency"][0]],
-                    buttonMode: [datas["buttonMode"][0]],
-                    buttonPump1: [datas["buttonPump1"][0]],
-                    buttonPump2: [datas["buttonPump2"][0]],
-                    buttonStart: [datas["buttonStart"][0]],
-                    buttonStop: [false],
-                    memorySetTemp: [datas["memorySetTemp"][0]],
-                }),
-                2,
-                false
-            );
+            Swal.fire({
+                icon: "warning",
+                title: "Warning",
+                text: `You don't have access to do this since you're not administrator.`,
+            });
+            return false;
         }
     });
     // Emergency Button Handler
     $("#emergency-check").click((state) => {
-        if (state.target.checked === true) {
-            client.send(
-                "scada-fahmi-m5Hj/write/device",
-                JSON.stringify({
-                    buttonEmergency: [true],
-                    buttonMode: [datas["buttonMode"][0]],
-                    buttonPump1: [datas["buttonPump1"][0]],
-                    buttonPump2: [datas["buttonPump2"][0]],
-                    buttonStart: [datas["buttonStart"][0]],
-                    buttonStop: [datas["buttonStop"][0]],
-                    memorySetTemp: [datas["memorySetTemp"][0]],
-                }),
-                2,
-                false
-            );
+        if (isAdmin) {
+            if (state.target.checked === true) {
+                client.send(
+                    "scada-fahmi-m5Hj/write/device",
+                    JSON.stringify({
+                        buttonEmergency: [true],
+                        buttonMode: [datas["buttonMode"][0]],
+                        buttonPump1: [datas["buttonPump1"][0]],
+                        buttonPump2: [datas["buttonPump2"][0]],
+                        buttonStart: [datas["buttonStart"][0]],
+                        buttonStop: [datas["buttonStop"][0]],
+                        memorySetTemp: [datas["memorySetTemp"][0]],
+                    }),
+                    2,
+                    false
+                );
+            } else {
+                client.send(
+                    "scada-fahmi-m5Hj/write/device",
+                    JSON.stringify({
+                        buttonEmergency: [false],
+                        buttonMode: [datas["buttonMode"][0]],
+                        buttonPump1: [datas["buttonPump1"][0]],
+                        buttonPump2: [datas["buttonPump2"][0]],
+                        buttonStart: [datas["buttonStart"][0]],
+                        buttonStop: [datas["buttonStop"][0]],
+                        memorySetTemp: [datas["memorySetTemp"][0]],
+                    }),
+                    2,
+                    false
+                );
+            }
         } else {
-            client.send(
-                "scada-fahmi-m5Hj/write/device",
-                JSON.stringify({
-                    buttonEmergency: [false],
-                    buttonMode: [datas["buttonMode"][0]],
-                    buttonPump1: [datas["buttonPump1"][0]],
-                    buttonPump2: [datas["buttonPump2"][0]],
-                    buttonStart: [datas["buttonStart"][0]],
-                    buttonStop: [datas["buttonStop"][0]],
-                    memorySetTemp: [datas["memorySetTemp"][0]],
-                }),
-                2,
-                false
-            );
+            Swal.fire({
+                icon: "warning",
+                title: "Warning",
+                text: `You don't have access to do this since you're not administrator.`,
+            });
+            return false;
         }
     });
     // Mode Button Handler
     $("#mode-check").click((state) => {
-        if (state.target.checked === true) {
-            client.send(
-                "scada-fahmi-m5Hj/write/device",
-                JSON.stringify({
-                    buttonEmergency: [datas["buttonEmergency"][0]],
-                    buttonMode: [true],
-                    buttonPump1: [datas["buttonPump1"][0]],
-                    buttonPump2: [datas["buttonPump2"][0]],
-                    buttonStart: [datas["buttonStart"][0]],
-                    buttonStop: [datas["buttonStop"][0]],
-                    memorySetTemp: [datas["memorySetTemp"][0]],
-                }),
-                2,
-                false
-            );
+        if (isAdmin) {
+            if (state.target.checked === true) {
+                client.send(
+                    "scada-fahmi-m5Hj/write/device",
+                    JSON.stringify({
+                        buttonEmergency: [datas["buttonEmergency"][0]],
+                        buttonMode: [true],
+                        buttonPump1: [datas["buttonPump1"][0]],
+                        buttonPump2: [datas["buttonPump2"][0]],
+                        buttonStart: [datas["buttonStart"][0]],
+                        buttonStop: [datas["buttonStop"][0]],
+                        memorySetTemp: [datas["memorySetTemp"][0]],
+                    }),
+                    2,
+                    false
+                );
+            } else {
+                client.send(
+                    "scada-fahmi-m5Hj/write/device",
+                    JSON.stringify({
+                        buttonEmergency: [datas["buttonEmergency"][0]],
+                        buttonMode: [false],
+                        buttonPump1: [datas["buttonPump1"][0]],
+                        buttonPump2: [datas["buttonPump2"][0]],
+                        buttonStart: [datas["buttonStart"][0]],
+                        buttonStop: [datas["buttonStop"][0]],
+                        memorySetTemp: [datas["memorySetTemp"][0]],
+                    }),
+                    2,
+                    false
+                );
+            }
         } else {
-            client.send(
-                "scada-fahmi-m5Hj/write/device",
-                JSON.stringify({
-                    buttonEmergency: [datas["buttonEmergency"][0]],
-                    buttonMode: [false],
-                    buttonPump1: [datas["buttonPump1"][0]],
-                    buttonPump2: [datas["buttonPump2"][0]],
-                    buttonStart: [datas["buttonStart"][0]],
-                    buttonStop: [datas["buttonStop"][0]],
-                    memorySetTemp: [datas["memorySetTemp"][0]],
-                }),
-                2,
-                false
-            );
+            Swal.fire({
+                icon: "warning",
+                title: "Warning",
+                text: `You don't have access to do this since you're not administrator.`,
+            });
+            return false;
         }
     });
     // Pump 1 Button Handler
     $("#pump1-check").click((state) => {
-        if (state.target.checked === true) {
-            client.send(
-                "scada-fahmi-m5Hj/write/device",
-                JSON.stringify({
-                    buttonEmergency: [datas["buttonEmergency"][0]],
-                    buttonMode: [datas["buttonMode"][0]],
-                    buttonPump1: [true],
-                    buttonPump2: [datas["buttonPump2"][0]],
-                    buttonStart: [datas["buttonStart"][0]],
-                    buttonStop: [datas["buttonStop"][0]],
-                    memorySetTemp: [datas["memorySetTemp"][0]],
-                }),
-                2,
-                false
-            );
+        if (isAdmin) {
+            if (state.target.checked === true) {
+                client.send(
+                    "scada-fahmi-m5Hj/write/device",
+                    JSON.stringify({
+                        buttonEmergency: [datas["buttonEmergency"][0]],
+                        buttonMode: [datas["buttonMode"][0]],
+                        buttonPump1: [true],
+                        buttonPump2: [datas["buttonPump2"][0]],
+                        buttonStart: [datas["buttonStart"][0]],
+                        buttonStop: [datas["buttonStop"][0]],
+                        memorySetTemp: [datas["memorySetTemp"][0]],
+                    }),
+                    2,
+                    false
+                );
+            } else {
+                client.send(
+                    "scada-fahmi-m5Hj/write/device",
+                    JSON.stringify({
+                        buttonEmergency: [datas["buttonEmergency"][0]],
+                        buttonMode: [datas["buttonMode"][0]],
+                        buttonPump1: [false],
+                        buttonPump2: [datas["buttonPump2"][0]],
+                        buttonStart: [datas["buttonStart"][0]],
+                        buttonStop: [datas["buttonStop"][0]],
+                        memorySetTemp: [datas["memorySetTemp"][0]],
+                    }),
+                    2,
+                    false
+                );
+            }
         } else {
-            client.send(
-                "scada-fahmi-m5Hj/write/device",
-                JSON.stringify({
-                    buttonEmergency: [datas["buttonEmergency"][0]],
-                    buttonMode: [datas["buttonMode"][0]],
-                    buttonPump1: [false],
-                    buttonPump2: [datas["buttonPump2"][0]],
-                    buttonStart: [datas["buttonStart"][0]],
-                    buttonStop: [datas["buttonStop"][0]],
-                    memorySetTemp: [datas["memorySetTemp"][0]],
-                }),
-                2,
-                false
-            );
+            Swal.fire({
+                icon: "warning",
+                title: "Warning",
+                text: `You don't have access to do this since you're not administrator.`,
+            });
+            return false;
         }
     });
     // Pump 2 Button Handler
     $("#pump2-check").click((state) => {
-        if (state.target.checked === true) {
-            client.send(
-                "scada-fahmi-m5Hj/write/device",
-                JSON.stringify({
-                    buttonEmergency: [datas["buttonEmergency"][0]],
-                    buttonMode: [datas["buttonMode"][0]],
-                    buttonPump1: [datas["buttonPump1"][0]],
-                    buttonPump2: [true],
-                    buttonStart: [datas["buttonStart"][0]],
-                    buttonStop: [datas["buttonStop"][0]],
-                    memorySetTemp: [datas["memorySetTemp"][0]],
-                }),
-                2,
-                false
-            );
+        if (isAdmin) {
+            if (state.target.checked === true) {
+                client.send(
+                    "scada-fahmi-m5Hj/write/device",
+                    JSON.stringify({
+                        buttonEmergency: [datas["buttonEmergency"][0]],
+                        buttonMode: [datas["buttonMode"][0]],
+                        buttonPump1: [datas["buttonPump1"][0]],
+                        buttonPump2: [true],
+                        buttonStart: [datas["buttonStart"][0]],
+                        buttonStop: [datas["buttonStop"][0]],
+                        memorySetTemp: [datas["memorySetTemp"][0]],
+                    }),
+                    2,
+                    false
+                );
+            } else {
+                client.send(
+                    "scada-fahmi-m5Hj/write/device",
+                    JSON.stringify({
+                        buttonEmergency: [datas["buttonEmergency"][0]],
+                        buttonMode: [datas["buttonMode"][0]],
+                        buttonPump1: [datas["buttonPump1"][0]],
+                        buttonPump2: [false],
+                        buttonStart: [datas["buttonStart"][0]],
+                        buttonStop: [datas["buttonStop"][0]],
+                        memorySetTemp: [datas["memorySetTemp"][0]],
+                    }),
+                    2,
+                    false
+                );
+            }
         } else {
-            client.send(
-                "scada-fahmi-m5Hj/write/device",
-                JSON.stringify({
-                    buttonEmergency: [datas["buttonEmergency"][0]],
-                    buttonMode: [datas["buttonMode"][0]],
-                    buttonPump1: [datas["buttonPump1"][0]],
-                    buttonPump2: [false],
-                    buttonStart: [datas["buttonStart"][0]],
-                    buttonStop: [datas["buttonStop"][0]],
-                    memorySetTemp: [datas["memorySetTemp"][0]],
-                }),
-                2,
-                false
-            );
+            Swal.fire({
+                icon: "warning",
+                title: "Warning",
+                text: `You don't have access to do this since you're not administrator.`,
+            });
+            return false;
         }
     });
 };
