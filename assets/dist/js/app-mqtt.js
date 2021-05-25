@@ -29,11 +29,12 @@ let dashboardHandler = () => {
         }
     });
     let clientId = "mqttjs_" + Math.random().toString(16).substr(2, 8);
-    let client = new Paho.MQTT.Client("broker.mqttdashboard.com", 8000, clientId);
+    let client = new Paho.MQTT.Client("test.mosquitto.org", 8081, clientId);
     let datas;
     let countAlert = 0;
     let alertStop = 0;
     let alertStart = 0;
+    let alertSet = 0;
     $("#nav-dash").addClass("active");
     $(".dash-mqtt-on").click(() => {
         let onFailure = (error) => {
@@ -120,16 +121,18 @@ let dashboardHandler = () => {
                 $(".dash-set-temp").html(`${datas["memorySetTemp"][0]}°C`);
                 $(".dash-set-prog").css("width", `${progressBar(datas["memorySetTemp"][0])}`);
                 if (datas["memoryActualTemp"][0] === datas["memorySetTemp"][0]) {
-                    firebase
-                        .database()
-                        .ref(`alerts/${new Date().getTime()}`)
-                        .once("value", (snapshot) => {
-                            if (!snapshot.exists()) {
-                                firebase.database().ref(`alerts/${new Date().getTime()}`).set(["Info : Set Value Reached"]);
-                            }
-                        });
-                    countAlert += 1;
-                    $(".fill-alerts").prepend(`
+                    if (alertSet === 0) {
+                        firebase
+                            .database()
+                            .ref(`alerts/${new Date().getTime()}`)
+                            .once("value", (snapshot) => {
+                                if (!snapshot.exists()) {
+                                    firebase.database().ref(`alerts/${new Date().getTime()}`).set(["Info : Set Value Reached"]);
+                                }
+                            });
+                        countAlert += 1;
+                        alertSet = 1;
+                        $(".fill-alerts").prepend(`
                         <a class="dropdown-item d-flex align-items-center">
                             <div class="mr-3">
                                 <div class="icon-circle bg-warning">
@@ -141,9 +144,12 @@ let dashboardHandler = () => {
                                 <span class="font-weight-bold">Set Value Reached</span>
                             </div>
                         </a>
-                    `);
-                    $(".badge-counter").html(countAlert);
-                    toastPush("info");
+                        `);
+                        $(".badge-counter").html(countAlert);
+                        toastPush("info");
+                    }
+                } else {
+                    alertSet = 0;
                 }
 
                 if (datas["flagSystem"][0] === false) {
@@ -330,11 +336,12 @@ let dashboardHandler = () => {
                     $(".ahu-status").html("On");
                 }
             };
-            client.subscribe("scada-fahmi-m5Hj/status/device");
+            client.subscribe("scada-fahmi-lK8J/status/device");
         };
         client.connect({
             onSuccess: onConnect,
             onFailure: onFailure,
+            useSSL: true,
         });
     });
     $(".dash-mqtt-off").click(() => {
@@ -368,7 +375,7 @@ let dashboardHandler = () => {
 
             if (temprature) {
                 client.send(
-                    "scada-fahmi-m5Hj/write/device",
+                    "scada-fahmi-lK8J/write/device",
                     JSON.stringify({
                         buttonEmergency: [datas["buttonEmergency"][0]],
                         buttonMode: [datas["buttonMode"][0]],
@@ -395,7 +402,7 @@ let dashboardHandler = () => {
         if (isAdmin) {
             if (state.target.checked === true) {
                 client.send(
-                    "scada-fahmi-m5Hj/write/device",
+                    "scada-fahmi-lK8J/write/device",
                     JSON.stringify({
                         buttonEmergency: [datas["buttonEmergency"][0]],
                         buttonMode: [datas["buttonMode"][0]],
@@ -410,7 +417,7 @@ let dashboardHandler = () => {
                 );
             } else {
                 client.send(
-                    "scada-fahmi-m5Hj/write/device",
+                    "scada-fahmi-lK8J/write/device",
                     JSON.stringify({
                         buttonEmergency: [datas["buttonEmergency"][0]],
                         buttonMode: [datas["buttonMode"][0]],
@@ -438,7 +445,7 @@ let dashboardHandler = () => {
         if (isAdmin) {
             if (state.target.checked === true) {
                 client.send(
-                    "scada-fahmi-m5Hj/write/device",
+                    "scada-fahmi-lK8J/write/device",
                     JSON.stringify({
                         buttonEmergency: [datas["buttonEmergency"][0]],
                         buttonMode: [datas["buttonMode"][0]],
@@ -453,7 +460,7 @@ let dashboardHandler = () => {
                 );
             } else {
                 client.send(
-                    "scada-fahmi-m5Hj/write/device",
+                    "scada-fahmi-lK8J/write/device",
                     JSON.stringify({
                         buttonEmergency: [datas["buttonEmergency"][0]],
                         buttonMode: [datas["buttonMode"][0]],
@@ -481,7 +488,7 @@ let dashboardHandler = () => {
         if (isAdmin) {
             if (state.target.checked === true) {
                 client.send(
-                    "scada-fahmi-m5Hj/write/device",
+                    "scada-fahmi-lK8J/write/device",
                     JSON.stringify({
                         buttonEmergency: [true],
                         buttonMode: [datas["buttonMode"][0]],
@@ -496,7 +503,7 @@ let dashboardHandler = () => {
                 );
             } else {
                 client.send(
-                    "scada-fahmi-m5Hj/write/device",
+                    "scada-fahmi-lK8J/write/device",
                     JSON.stringify({
                         buttonEmergency: [false],
                         buttonMode: [datas["buttonMode"][0]],
@@ -524,7 +531,7 @@ let dashboardHandler = () => {
         if (isAdmin) {
             if (state.target.checked === true) {
                 client.send(
-                    "scada-fahmi-m5Hj/write/device",
+                    "scada-fahmi-lK8J/write/device",
                     JSON.stringify({
                         buttonEmergency: [datas["buttonEmergency"][0]],
                         buttonMode: [true],
@@ -539,7 +546,7 @@ let dashboardHandler = () => {
                 );
             } else {
                 client.send(
-                    "scada-fahmi-m5Hj/write/device",
+                    "scada-fahmi-lK8J/write/device",
                     JSON.stringify({
                         buttonEmergency: [datas["buttonEmergency"][0]],
                         buttonMode: [false],
@@ -567,7 +574,7 @@ let dashboardHandler = () => {
         if (isAdmin) {
             if (state.target.checked === true) {
                 client.send(
-                    "scada-fahmi-m5Hj/write/device",
+                    "scada-fahmi-lK8J/write/device",
                     JSON.stringify({
                         buttonEmergency: [datas["buttonEmergency"][0]],
                         buttonMode: [datas["buttonMode"][0]],
@@ -582,7 +589,7 @@ let dashboardHandler = () => {
                 );
             } else {
                 client.send(
-                    "scada-fahmi-m5Hj/write/device",
+                    "scada-fahmi-lK8J/write/device",
                     JSON.stringify({
                         buttonEmergency: [datas["buttonEmergency"][0]],
                         buttonMode: [datas["buttonMode"][0]],
@@ -610,7 +617,7 @@ let dashboardHandler = () => {
         if (isAdmin) {
             if (state.target.checked === true) {
                 client.send(
-                    "scada-fahmi-m5Hj/write/device",
+                    "scada-fahmi-lK8J/write/device",
                     JSON.stringify({
                         buttonEmergency: [datas["buttonEmergency"][0]],
                         buttonMode: [datas["buttonMode"][0]],
@@ -625,7 +632,7 @@ let dashboardHandler = () => {
                 );
             } else {
                 client.send(
-                    "scada-fahmi-m5Hj/write/device",
+                    "scada-fahmi-lK8J/write/device",
                     JSON.stringify({
                         buttonEmergency: [datas["buttonEmergency"][0]],
                         buttonMode: [datas["buttonMode"][0]],
